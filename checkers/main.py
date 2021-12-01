@@ -1,13 +1,12 @@
 import checkers
 
-from time import sleep
 ##COLORS##
 #             R    G    B
 WHITE = (255, 255, 255)
-BLUE = (0,   0, 255)
-RED = (255,   0,   0)
-BLACK = (0,   0,   0)
-GOLD = (255, 215,   0)
+BLUE = (0, 0, 255)
+RED = (255, 0, 0)
+BLACK = (0, 0, 0)
+GOLD = (255, 215, 0)
 HIGH = (160, 190, 255)
 
 ##DIRECTIONS##
@@ -27,7 +26,7 @@ def main():
         #     game, BLUE, mid_eval='piece_and_board_pov', method='alpha_beta', depth=3, end_eval='sum_of_dist')
         while True:  # main game loop
             if game.turn == BLUE:
-                 # TO start player's turn uncomment the below line and comment a couple  of line below than that
+                # TO start player's turn uncomment the below line and comment a couple  of line below than that
                 game.player_turn()
                 # count_nodes = random_bot_blue.step(game.board, True)
                 # print('Total nodes explored in this step are', count_nodes)
