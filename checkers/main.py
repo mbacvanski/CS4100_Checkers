@@ -2,6 +2,8 @@ import checkers
 
 ##COLORS##
 #             R    G    B
+from minimax_agent import MinimaxAgent
+
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
@@ -20,6 +22,7 @@ def main():
     while True:
         game = checkers.Game(loop_mode=True)
         game.setup()
+        agent = MinimaxAgent(color=RED, game=game, depth=100)
         # bot = gamebot.Bot(game, RED, mid_eval='piece_and_board',
         #                   end_eval='sum_of_dist', method='alpha_beta', depth=3)
         # random_bot_blue = gamebot.Bot(
@@ -28,12 +31,14 @@ def main():
             if game.turn == BLUE:
                 # TO start player's turn uncomment the below line and comment a couple  of line below than that
                 game.player_turn()
+                # agent.make_move(board=game.board)
                 # count_nodes = random_bot_blue.step(game.board, True)
                 # print('Total nodes explored in this step are', count_nodes)
                 game.update()
             else:
                 # TO start player's turn uncomment the below line and comment a couple  of line below than that
-                game.player_turn()
+                # game.player_turn()
+                agent.make_move(board=game.board)
                 # count_nodes = bot.step(game.board, True)
                 # print('Total nodes explored in this step are', count_nodes)
                 game.update()
