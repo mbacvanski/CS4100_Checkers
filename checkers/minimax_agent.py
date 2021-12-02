@@ -26,12 +26,13 @@ class MinimaxAgent:
         )
         return self.minimax(starting_state=starting_state, depth=self.depth)[1]
 
-    def minimax(self, starting_state: GameState, depth=100) -> Tuple[float, Union[Action, None]]:
+    def minimax(self, starting_state: GameState, depth=10) -> Tuple[float, Union[Action, None]]:
         if starting_state.is_terminal():
             return (-1 if starting_state.current_player_color == self.color else 1), None
 
-        # if starting_state.depth > depth:
-        #     return self.evaluation_function
+        if starting_state.depth > depth:
+            # return self.evaluation_function(starting_state), None
+            return starting_state.value(), None
 
         if starting_state.current_player_color == self.color:
             print(f'running max on depth, {starting_state.depth}')

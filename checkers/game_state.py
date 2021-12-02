@@ -66,7 +66,7 @@ class GameState:
             for j in range(8):
                 occupant = board.location(i, j).occupant
                 if occupant is not None:
-                    if occupant.current_player_color == color:
+                    if occupant.color == color:
                         score += occupant.value
                     else:
                         score -= occupant.value
