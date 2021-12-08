@@ -1,3 +1,4 @@
+import random
 from typing import Tuple, Union
 
 from checkers import Board, Game
@@ -43,10 +44,10 @@ class MinimaxAgent:
             return starting_state.value(), None
 
         if starting_state.current_player_color == self.color:
-            print(f'running max on depth, {starting_state.depth}')
+            # print(f'running max on depth, {starting_state.depth}')
             return self.run_max(starting_state)
         else:
-            print(f'running min on depth, {starting_state.depth}')
+            # print(f'running min on depth, {starting_state.depth}')
             return self.run_min(starting_state)
 
     def run_max(self, state: GameState) -> Tuple[float, Union[Action, None]]:
@@ -59,21 +60,27 @@ class MinimaxAgent:
             if value > max_value:
                 max_value = value
                 max_action = action
+            elif value == max_value and bool(random.randint(0, 1)):
+                max_value = value
+                max_action = action
 
         return max_value, max_action
 
     def run_min(self, state: GameState) -> Tuple[float, Union[Action, None]]:
         min_value = float('inf')
-        max_action = None
+        min_action = None
 
         for action in state.next_actions():
             new_game_state = state.next_state(action)
             value, _ = self.minimax(new_game_state, self.depth_limit)
             if value < min_value:
                 min_value = value
-                max_action = action
+                min_action = action
+            elif value == min_value and bool(random.randint(0, 1)):
+                min_value = value
+                min_action = action
 
-        return min_value, max_action
+        return min_value, min_action
 
     def _action(self, current_pos, final_pos, board):
         if current_pos is None:

@@ -22,7 +22,7 @@ def main():
     while True:
         game = checkers.Game(loop_mode=False)
         game.setup()
-        agent = MinimaxAgent(color=RED, game=game, depth=2)
+        agent = MinimaxAgent(color=RED, game=game, depth=1)
         # bot = gamebot.Bot(game, RED, mid_eval='piece_and_board',
         #                   end_eval='sum_of_dist', method='alpha_beta', depth=3)
         # random_bot_blue = gamebot.Bot(
