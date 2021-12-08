@@ -17,7 +17,12 @@ class MinimaxAgent:
 
     def make_move(self, board: Board):
         move = self._get_move(board, start_from=self.game.last_hop_to)
-        self._action(current_pos=(move.from_x, move.from_y), final_pos=(move.to_x, move.to_y), board=board)
+        if move is not None:
+            print(f'decided on move ({move.from_x}, {move.from_y}) => ({move.to_x}, {move.to_y})')
+            self._action(current_pos=(move.from_x, move.from_y), final_pos=(move.to_x, move.to_y), board=board)
+        else:
+            print('no moves found ...')
+            self.game.end_turn()
 
     def _get_move(self, board: Board, start_from=None):
         starting_state = GameState(
@@ -76,39 +81,59 @@ class MinimaxAgent:
             # board.repr_matrix()
             # print(self._generate_all_possible_moves(board))
         # print(current_pos, final_pos, board.location(current_pos[0], current_pos[1]).occupant)
-        if self.game.hop == False:
-            if board.location(final_pos[0], final_pos[1]).occupant != None and board.location(final_pos[0], final_pos[
-                1]).occupant.color == self.game.turn:
-                current_pos = final_pos
+        # if self.game.hop == False:
+        #     if board.location(final_pos[0], final_pos[1]).occupant != None and board.location(final_pos[0], final_pos[
+        #         1]).occupant.color == self.game.turn:
+        #         current_pos = final_pos
+        #
+        #     elif current_pos != None and final_pos in board.legal_moves(current_pos[0], current_pos[1]):
+        #         board.move_piece(
+        #             current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+        #
+        #         if final_pos not in board.adjacent(current_pos[0], current_pos[1]):
+        #             board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) //
+        #                                2, current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
+        #
+        #             self.game.hop = True
+        #             self.game.last_hop_to = final_pos
+        #
+        # if self.game.hop == True:
+        #     if current_pos != None and final_pos in board.legal_moves(current_pos[0], current_pos[1], self.game.hop):
+        #         board.move_piece(
+        #             current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+        #         board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) //
+        #                            2, current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
+        #
+        #     if board.legal_moves(final_pos[0], final_pos[1], self.game.hop) == []:
+        #         self.game.end_turn()
+        #     else:
+        #         current_pos = final_pos
+        #         final_pos = board.legal_moves(
+        #             current_pos[0], current_pos[1], True)
+        #         if final_pos != []:
+        #             print('what is going on')
+        #             self._action(current_pos, final_pos[0], board)
+        #         self.game.end_turn()
+        # if not self.game.hop:
+        #     # self.game.turn = _next_player_color(self.game.turn)
+        #     self.game.turn = self.adversary_color
 
-            elif current_pos != None and final_pos in board.legal_moves(current_pos[0], current_pos[1]):
-                board.move_piece(
-                    current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+        # =================
 
-                if final_pos not in board.adjacent(current_pos[0], current_pos[1]):
-                    board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) //
-                                       2, current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
+        if board.location(final_pos[0], final_pos[1]).occupant != None and board.location(final_pos[0], final_pos[
+            1]).occupant.color == self.game.turn:
+            current_pos = final_pos
 
-                    self.game.hop = True
-                    self.game.last_hop_to = final_pos
+        elif current_pos is not None and final_pos in board.legal_moves(current_pos[0], current_pos[1]):
+            board.move_piece(
+                current_pos[0], current_pos[1], final_pos[0], final_pos[1])
 
-        if self.game.hop == True:
-            if current_pos != None and final_pos in board.legal_moves(current_pos[0], current_pos[1], self.game.hop):
-                board.move_piece(
-                    current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+            if final_pos not in board.adjacent(current_pos[0], current_pos[1]):
                 board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) //
                                    2, current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
 
-            if board.legal_moves(final_pos[0], final_pos[1], self.game.hop) == []:
+                self.game.hop = True
+                self.game.last_hop_to = final_pos
+            else:  # not a hop
                 self.game.end_turn()
-            else:
-                current_pos = final_pos
-                final_pos = board.legal_moves(
-                    current_pos[0], current_pos[1], True)
-                if final_pos != []:
-                    self._action(current_pos, final_pos[0], board)
-                self.game.end_turn()
-
-        if self.game.hop != True:
-            # self.game.turn = _next_player_color(self.game.turn)
-            self.game.turn = self.adversary_color
+                # self.game.turn = self.adversary_color
