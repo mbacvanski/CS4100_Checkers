@@ -1,30 +1,33 @@
 from typing import Tuple, Union
 
 from checkers import Board, Game
-from game_state import Action, GameState, PlayerColor, _next_player_color
+from game_state import Action, GameState, PlayerColor, _next_player_color, piece2val
 
 
 class MinimaxAgent:
     color: PlayerColor = None  # which color does this agent play for
     game: Game = None
-    depth: int = 0
+    depth_limit: int = 0
 
     def __init__(self, color: PlayerColor, game: Game, depth: int):
         self.color = color
         self.game = game
-        self.depth = depth
+        self.depth_limit = depth
+        self.adversary_color = _next_player_color(self.color)
 
     def make_move(self, board: Board):
-        move = self._get_move(board)
+        move = self._get_move(board, start_from=self.game.last_hop_to)
         self._action(current_pos=(move.from_x, move.from_y), final_pos=(move.to_x, move.to_y), board=board)
 
-    def _get_move(self, board: Board):
+    def _get_move(self, board: Board, start_from=None):
         starting_state = GameState(
             board=board,
             game=self.game,
-            color=self.color
+            color=self.color,
+            eval_fn=piece2val,
+            start_from=start_from,
         )
-        return self.minimax(starting_state=starting_state, depth=self.depth)[1]
+        return self.minimax(starting_state=starting_state, depth=self.depth_limit)[1]
 
     def minimax(self, starting_state: GameState, depth=10) -> Tuple[float, Union[Action, None]]:
         if starting_state.is_terminal():
@@ -47,7 +50,7 @@ class MinimaxAgent:
 
         for action in state.next_actions():
             new_game_state = state.next_state(action)
-            value, _ = self.minimax(new_game_state, self.depth)
+            value, _ = self.minimax(new_game_state, self.depth_limit)
             if value > max_value:
                 max_value = value
                 max_action = action
@@ -60,7 +63,7 @@ class MinimaxAgent:
 
         for action in state.next_actions():
             new_game_state = state.next_state(action)
-            value, _ = self.minimax(new_game_state, self.depth)
+            value, _ = self.minimax(new_game_state, self.depth_limit)
             if value < min_value:
                 min_value = value
                 max_action = action
@@ -87,13 +90,7 @@ class MinimaxAgent:
                                        2, current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
 
                     self.game.hop = True
-                    current_pos = final_pos
-                    final_pos = board.legal_moves(
-                        current_pos[0], current_pos[1], True)
-                    if final_pos != []:
-                        # print("HOP in Action", current_pos, final_pos)
-                        self._action(current_pos, final_pos[0], board)
-                    self.game.end_turn()
+                    self.game.last_hop_to = final_pos
 
         if self.game.hop == True:
             if current_pos != None and final_pos in board.legal_moves(current_pos[0], current_pos[1], self.game.hop):
@@ -109,8 +106,9 @@ class MinimaxAgent:
                 final_pos = board.legal_moves(
                     current_pos[0], current_pos[1], True)
                 if final_pos != []:
-                    # print("HOP in Action", current_pos, final_pos)
                     self._action(current_pos, final_pos[0], board)
                 self.game.end_turn()
+
         if self.game.hop != True:
-            self.game.turn = _next_player_color(self.game.turn)
+            # self.game.turn = _next_player_color(self.game.turn)
+            self.game.turn = self.adversary_color

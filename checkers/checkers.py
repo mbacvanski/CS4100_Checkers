@@ -5,12 +5,7 @@ A simple checkers engine written in Python with the pygame 1.9.1 libraries.
 
 Here are the rules I am using: http://boardgames.about.com/cs/checkersdraughts/ht/play_checkers.htm
 
-I adapted some code from checkers.py found at
-http://itgirl.dreamhosters.com/itgirlgames/games/Program%20Leaders/ClareR/Checkers/checkers.py starting on line 159 of my program.
-
-This is the final version of my checkers project for Programming Workshop at Marlboro College. The entire thing has been rafactored and made almost completely object oriented.
-
-Funcitonalities include:
+Functionalities include:
 
 - Having the pieces and board drawn to the screen
 
@@ -32,18 +27,17 @@ Funcitonalities include:
 - Automatic check for and end game.
 
 - A silky smoooth 60 FPS!
-
-Everest Witman - May 2014 - Marlboro College - Programming Workshop
 """
 
-import pygame
 import sys
+
+import pygame
 from pygame.locals import *
 
 pygame.font.init()
 
 ##COLORS##
-#             R    G    B
+#         R    G    B
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
@@ -70,6 +64,7 @@ class Game:
         self.turn = BLUE
         self.selected_piece = None  # a board location.
         self.hop = False
+        self.last_hop_to = None
         self.loop_mode = loop_mode
         self.selected_legal_moves = []
 
@@ -162,6 +157,7 @@ class Game:
         self.selected_piece = None
         self.selected_legal_moves = []
         self.hop = False
+        self.last_hop_to = None
 
         if self.check_for_endgame():
             if self.turn == BLUE:

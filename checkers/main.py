@@ -20,7 +20,7 @@ SOUTHEAST = "southeast"
 
 def main():
     while True:
-        game = checkers.Game(loop_mode=True)
+        game = checkers.Game(loop_mode=False)
         game.setup()
         agent = MinimaxAgent(color=RED, game=game, depth=1)
         # bot = gamebot.Bot(game, RED, mid_eval='piece_and_board',
@@ -34,16 +34,15 @@ def main():
                 # agent.make_move(board=game.board)
                 # count_nodes = random_bot_blue.step(game.board, True)
                 # print('Total nodes explored in this step are', count_nodes)
-                game.update()
             else:
                 # TO start player's turn uncomment the below line and comment a couple  of line below than that
                 # game.player_turn()
                 agent.make_move(board=game.board)
                 # count_nodes = bot.step(game.board, True)
                 # print('Total nodes explored in this step are', count_nodes)
-                game.update()
             if game.endit:
                 break
+            game.update()
 
 
 if __name__ == "__main__":

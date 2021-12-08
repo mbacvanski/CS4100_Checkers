@@ -13,18 +13,35 @@ PlayerColor = Tuple
 
 # PlayerColor = Union[BLUE, RED]
 
+def piece2val(board, color):
+    score = 0
+    for i in range(8):
+        for j in range(8):
+            occupant = board.location(i, j).occupant
+            if occupant is not None:
+                if occupant.color == color:
+                    score += occupant.value
+                else:
+                    score -= occupant.value
+    return score
+
 
 class GameState:
     board: Board = None
     game: Game = None
-    current_player_color: Color = None
+    current_player_color: PlayerColor = None
     depth: int = 0
+    eval_fn = piece2val
+    start_from: Tuple = None
 
-    def __init__(self, board: Board, game: Game, color: PlayerColor, depth: int = 0):
+    def __init__(self, board: Board, game: Game, color: PlayerColor, depth: int = 0, eval_fn=piece2val,
+                 start_from: Tuple = None):
         self.board = board
         self.game = game
         self.current_player_color = color
         self.depth = depth
+        self.eval_fn = eval_fn
+        self.start_from = start_from
 
     def is_terminal(self) -> bool:
         pass
@@ -34,14 +51,21 @@ class GameState:
         Returns a list of [(from_x, from_to, to_x, to_y), ...]
         """
         actions: List[Action] = []
-        moves: List[MovesForPiece] = self._generate_move(self.board)
+        moves: List[MovesForPiece] = []
+
+        if self.start_from is not None:
+            i, j = self.start_from
+            moves = [MovesForPiece(i, j, self.board.legal_moves(i, j, self.game.hop))]
+        else:
+            moves = self._generate_move(self.board)
+
         for move_from_x, move_from_y, move_tos in moves:
             for move_to in move_tos:
                 actions.append(Action(move_from_x, move_from_y, move_to[0], move_to[1]))
 
         return actions
 
-    # Successor function
+    # Successor function returns a new GameState object
     def next_state(self, action: Action) -> GameState:
         next_board = deepcopy(self.board)  # makes a copy of the board
 
@@ -54,23 +78,13 @@ class GameState:
             game=self.game,
             color=_next_player_color(self.current_player_color),
             depth=self.depth + 1,
+            eval_fn=self.eval_fn
         )
         return next_state
 
     def value(self) -> float:
-        return self._piece2val(self.board, self.current_player_color)
-
-    def _piece2val(self, board, color):
-        score = 0
-        for i in range(8):
-            for j in range(8):
-                occupant = board.location(i, j).occupant
-                if occupant is not None:
-                    if occupant.color == color:
-                        score += occupant.value
-                    else:
-                        score -= occupant.value
-        return score
+        # return piece2val(self.board, self.current_player_color)
+        return self.eval_fn(self.board, self.current_player_color)
 
     def _generate_move(self, board) -> List[MovesForPiece]:
         for i in range(8):
