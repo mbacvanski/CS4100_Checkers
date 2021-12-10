@@ -1,34 +1,44 @@
+import multiprocessing as mp
+
 import checkers
+from game_state import piece2val, piece2val_favor_kings
 from minimax_agent import MinimaxAgent
 
 
-def main():
-    agent_blue_wins = 0
-    num_plays = 10
+def run_game_once(x):
+    """
+    Returns TRUE if red wins, FALSE if blue wins
+    """
+    game = checkers.Game(loop_mode=True)
+    game.setup()
+    agent_blue = MinimaxAgent(color=checkers.BLUE, game=game, depth=1, eval_fn=piece2val)
+    agent_red = MinimaxAgent(color=checkers.RED, game=game, depth=1, eval_fn=piece2val_favor_kings)
 
-    for i in range(num_plays):
-        game = checkers.Game(loop_mode=True)
-        game.setup()
-        agent_blue = MinimaxAgent(color=checkers.BLUE, game=game, depth=2)
-        agent_red = MinimaxAgent(color=checkers.RED, game=game, depth=2)
+    while True:  # main game loop
+        if game.turn == checkers.BLUE:
+            agent_blue.make_move(board=game.board)
+        else:
+            agent_red.make_move(board=game.board)
 
-        while True:  # main game loop
-            if game.turn == checkers.BLUE:
-                agent_blue.make_move(board=game.board)
+        if game.endit:
+            print('END GAME ====================')
+            if game.turn == checkers.RED:
+                return True
             else:
-                agent_red.make_move(board=game.board)
+                return False
 
-            if game.endit:
-                print('END GAME ====================')
-                if game.turn == checkers.RED:
-                    agent_blue_wins += 1
-                break
+        game.update()
 
-            game.update()
 
-    print(f'Agent Blue won {agent_blue_wins} times out of {num_plays}!\n'
-          f'{agent_blue_wins / num_plays}%')
+def parallel_main():
+    NUM_GAMES = 50
+
+    pool = mp.Pool(processes=8)
+    results = pool.map(run_game_once, range(NUM_GAMES))
+    print(results)
+    print(f'Red wins {sum(results)} / {len(results)} = {sum(results) / len(results)}%')
 
 
 if __name__ == '__main__':
-    main()
+    # main()
+    parallel_main()

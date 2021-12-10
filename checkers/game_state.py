@@ -13,16 +13,29 @@ PlayerColor = Tuple
 
 # PlayerColor = Union[BLUE, RED]
 
-def piece2val(board, color):
+def piece2val(board: Board, color: PlayerColor):
     score = 0
     for i in range(8):
         for j in range(8):
             occupant = board.location(i, j).occupant
             if occupant is not None:
                 if occupant.color == color:
-                    score += occupant.value
+                    score += 1
                 else:
-                    score -= occupant.value
+                    score -= 1
+    return score
+
+def piece2val_favor_kings(board: Board, color: PlayerColor):
+    score = 0
+    for i in range(8):
+        for j in range(8):
+            occupant = board.location(i, j).occupant
+            if occupant is not None:
+                value = 1 if occupant.king else 5
+                if occupant.color == color:
+                    score += value
+                else:
+                    score -= value
     return score
 
 

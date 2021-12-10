@@ -10,11 +10,12 @@ class MinimaxAgent:
     game: Game = None
     depth_limit: int = 0
 
-    def __init__(self, color: PlayerColor, game: Game, depth: int):
+    def __init__(self, color: PlayerColor, game: Game, depth: int, eval_fn=piece2val):
         self.color = color
         self.game = game
         self.depth_limit = depth
         self.adversary_color = _next_player_color(self.color)
+        self.eval_fn = eval_fn
 
     def make_move(self, board: Board):
         move = self._get_move(board, start_from=self.game.last_hop_to)
@@ -30,12 +31,12 @@ class MinimaxAgent:
             board=board,
             game=self.game,
             color=self.color,
-            eval_fn=piece2val,
+            eval_fn=self.eval_fn,
             start_from=start_from,
         )
         return self.minimax(starting_state=starting_state, depth=self.depth_limit)[1]
 
-    def minimax(self, starting_state: GameState, depth=10) -> Tuple[float, Union[Action, None]]:
+    def minimax(self, starting_state: GameState, depth=10, eval_fn=None) -> Tuple[float, Union[Action, None]]:
         if starting_state.is_terminal():
             return (-1 if starting_state.current_player_color == self.color else 1), None
 
