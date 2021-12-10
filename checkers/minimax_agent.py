@@ -20,10 +20,8 @@ class MinimaxAgent:
     def make_move(self, board: Board):
         move = self._get_move(board, start_from=self.game.last_hop_to)
         if move is not None:
-            print(f'decided on move ({move.from_x}, {move.from_y}) => ({move.to_x}, {move.to_y})')
             self._action(current_pos=(move.from_x, move.from_y), final_pos=(move.to_x, move.to_y), board=board)
         else:
-            print('no moves found ...')
             self.game.end_turn()
 
     def _get_move(self, board: Board, start_from=None):
@@ -65,6 +63,8 @@ class MinimaxAgent:
                 max_value = value
                 max_action = action
 
+        if max_action is None:  # if you can't take any actions, your value is 0
+            return 0, None
         return max_value, max_action
 
     def run_min(self, state: GameState) -> Tuple[float, Union[Action, None]]:
@@ -80,7 +80,8 @@ class MinimaxAgent:
             elif value == min_value and bool(random.randint(0, 1)):
                 min_value = value
                 min_action = action
-
+        if min_action is None:  # if you can't take any actions, your value is 0
+            return 0, None
         return min_value, min_action
 
     def _action(self, current_pos, final_pos, board):

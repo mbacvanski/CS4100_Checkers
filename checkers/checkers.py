@@ -67,6 +67,7 @@ class Game:
         self.last_hop_to = None
         self.loop_mode = loop_mode
         self.selected_legal_moves = []
+        self.move_count = 0
 
     def setup(self):
         """Draws the window and board at the beginning of the game"""
@@ -158,15 +159,13 @@ class Game:
         self.selected_legal_moves = []
         self.hop = False
         self.last_hop_to = None
+        self.move_count += 1
 
         if self.check_for_endgame():
             if self.turn == BLUE:
-                print('RED WINS!')
                 self.graphics.draw_message("RED WINS!")
             else:
-                print('BLUE WINS!')
                 self.graphics.draw_message("BLUE WINS!")
-            print(self.turn)
             if (self.loop_mode):
                 self.endit = True
             else:
@@ -280,7 +279,6 @@ class Graphics:
         """
         Draws message to the screen.
         """
-        print("in here")
         self.message = True
         self.font_obj = pygame.font.Font('freesansbold.ttf', 44)
         self.text_surface_obj = self.font_obj.render(message, True, HIGH, BLACK)

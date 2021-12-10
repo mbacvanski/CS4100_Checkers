@@ -1,8 +1,39 @@
+import json
+import multiprocessing
 import multiprocessing as mp
+import os
+from typing import Callable, Dict, Tuple
 
 import checkers
-from game_state import piece2val, piece2val_favor_kings
+from game_state import piece2val_inv
 from minimax_agent import MinimaxAgent
+
+NUM_GAMES = 50
+MAX_MOVES = 100
+
+
+def agent_str(agent: Dict) -> str:
+    return f'({agent.get("agent")}.{agent.get("depth")}.{agent.get("eval_fn").__name__})'
+
+
+AGENT_RED_SETUP = {
+    'agent': 'Minimax',
+    'color': checkers.RED,
+    'depth': 1,
+    'eval_fn': piece2val_inv
+}
+
+AGENT_BLUE_SETUP = {
+    'agent': 'Minimax',
+    'color': checkers.BLUE,
+    'depth': 1,
+    'eval_fn': piece2val_inv
+}
+
+
+def build_agent(game: checkers.Game, agent: str, color: Tuple, depth: int, eval_fn: Callable):
+    if agent == 'Minimax':
+        return MinimaxAgent(color=color, game=game, depth=depth, eval_fn=eval_fn)
 
 
 def run_game_once(x):
@@ -11,17 +42,18 @@ def run_game_once(x):
     """
     game = checkers.Game(loop_mode=True)
     game.setup()
-    agent_blue = MinimaxAgent(color=checkers.BLUE, game=game, depth=1, eval_fn=piece2val)
-    agent_red = MinimaxAgent(color=checkers.RED, game=game, depth=1, eval_fn=piece2val_favor_kings)
+    # agent_blue = MinimaxAgent(color=checkers.BLUE, game=game, depth=2, eval_fn=piece2val)
+    # agent_red = MinimaxAgent(color=checkers.RED, game=game, depth=1, eval_fn=piece2val_favor_kings)
+    agent_blue = build_agent(**{'game': game, **AGENT_BLUE_SETUP})
+    agent_red = build_agent(**{'game': game, **AGENT_RED_SETUP})
+    print(f'⏳ Starting run {x}...')
 
-    while True:  # main game loop
+    while True and game.move_count < MAX_MOVES:  # main game loop
         if game.turn == checkers.BLUE:
             agent_blue.make_move(board=game.board)
         else:
             agent_red.make_move(board=game.board)
-
         if game.endit:
-            print('END GAME ====================')
             if game.turn == checkers.RED:
                 return True
             else:
@@ -29,14 +61,42 @@ def run_game_once(x):
 
         game.update()
 
+    return None
+
 
 def parallel_main():
-    NUM_GAMES = 50
+    print('Agent Red: ' + str(AGENT_RED_SETUP))
+    print('Agent Blue: ' + str(AGENT_BLUE_SETUP))
 
-    pool = mp.Pool(processes=8)
+    pool = mp.Pool(processes=multiprocessing.cpu_count())
     results = pool.map(run_game_once, range(NUM_GAMES))
     print(results)
-    print(f'Red wins {sum(results)} / {len(results)} = {sum(results) / len(results)}%')
+
+    red_wins = sum([1 for x in results if x is not None and x])
+    blue_wins = sum([1 for x in results if x is not None and not x])
+    draws = sum([1 for x in results if x is None])
+
+    red_win_rate = red_wins / len(results)
+    blue_win_rate = blue_wins / len(results)
+
+    print(f'Red wins {red_wins} / {len(results)} = {red_wins / len(results)}%')
+
+    file_contents = {
+        'red': AGENT_RED_SETUP,
+        'blue': AGENT_BLUE_SETUP,
+        'num_games': NUM_GAMES,
+        'red_wins': red_wins,
+        'blue_wins': blue_wins,
+        'draws': draws,
+        'draw_threshold': MAX_MOVES,
+        'red_win_rate': red_win_rate,
+        'blue_win_rate': blue_win_rate,
+    }
+
+    filename = f'results/competitions/competition_{agent_str(AGENT_RED_SETUP)}_vs_{agent_str(AGENT_BLUE_SETUP)}.json'
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(filename, 'w') as fp:
+        json.dump(file_contents, fp, indent=2, default=lambda o: o.__name__)
 
 
 if __name__ == '__main__':

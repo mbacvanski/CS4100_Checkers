@@ -25,6 +25,20 @@ def piece2val(board: Board, color: PlayerColor):
                     score -= 1
     return score
 
+
+def piece2val_inv(board: Board, color: PlayerColor):
+    score = 0
+    for i in range(8):
+        for j in range(8):
+            occupant = board.location(i, j).occupant
+            if occupant is not None:
+                if occupant.color == color:
+                    score += 1
+                else:
+                    score -= 1
+    return 24 - score
+
+
 def piece2val_favor_kings(board: Board, color: PlayerColor):
     score = 0
     for i in range(8):

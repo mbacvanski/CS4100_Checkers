@@ -1,7 +1,10 @@
+from typing import Callable, Tuple
+
 import checkers
 
 ##COLORS##
 #             R    G    B
+from game_state import piece2val, piece2val_inv
 from minimax_agent import MinimaxAgent
 
 WHITE = (255, 255, 255)
@@ -17,12 +20,26 @@ NORTHEAST = "northeast"
 SOUTHWEST = "southwest"
 SOUTHEAST = "southeast"
 
+AGENT_RED_SETUP = {
+    'agent': 'Minimax',
+    'color': checkers.RED,
+    'depth': 2,
+    'eval_fn': piece2val_inv
+}
+
+
+def build_agent(game: checkers.Game, agent: str, color: Tuple, depth: int, eval_fn: Callable):
+    if agent == 'Minimax':
+        return MinimaxAgent(color=color, game=game, depth=depth, eval_fn=eval_fn)
+
 
 def main():
     while True:
         game = checkers.Game(loop_mode=False)
         game.setup()
-        agent = MinimaxAgent(color=RED, game=game, depth=1)
+        # agent = MinimaxAgent(color=RED, game=game, depth=1)
+        agent = build_agent(game=game, **AGENT_RED_SETUP)
+
         # bot = gamebot.Bot(game, RED, mid_eval='piece_and_board',
         #                   end_eval='sum_of_dist', method='alpha_beta', depth=3)
         # random_bot_blue = gamebot.Bot(
