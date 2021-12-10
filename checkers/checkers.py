@@ -30,6 +30,7 @@ Functionalities include:
 """
 
 import sys
+from copy import deepcopy
 
 import pygame
 from pygame.locals import *
@@ -59,7 +60,7 @@ class Game:
 
     def __init__(self, loop_mode):
         self.graphics = Graphics()
-        self.board = Board()
+        self.board: Board = Board()
         self.endit = False
         self.turn = BLUE
         self.selected_piece = None  # a board location.
@@ -68,6 +69,39 @@ class Game:
         self.loop_mode = loop_mode
         self.selected_legal_moves = []
         self.move_count = 0
+
+    def __deepcopy__(self, memo):
+        g = Game(loop_mode=self.loop_mode)
+        g.board = deepcopy(self.board)
+        g.endit = self.endit
+        g.turn = self.turn
+        g.selected_piece = self.selected_piece
+        g.hop = self.hop
+        g.last_hop_to = self.last_hop_to
+        g.loop_mode = self.loop_mode
+        g.selected_legal_moves = deepcopy(self.selected_legal_moves, memo)
+        g.move_count = self.move_count
+        return g
+
+    def whoWon(self):
+        numRed = 0
+        numBlue = 0
+        for i in range(8):
+            for j in range(8):
+                occupant = self.board.location(i, j).occupant
+                if occupant is None:
+                    continue
+
+                if occupant.color == RED:
+                    numRed += 1
+                else:
+                    numBlue += 1
+
+        if numRed == 0 and numBlue > 0:
+            return BLUE
+        elif numBlue == 0 and numRed > 0:
+            return RED
+        return None
 
     def setup(self):
         """Draws the window and board at the beginning of the game"""
@@ -94,7 +128,7 @@ class Game:
                 if self.hop == False:
                     if self.board.location(self.mouse_pos[0],
                                            self.mouse_pos[1]).occupant != None and self.board.location(
-                            self.mouse_pos[0], self.mouse_pos[1]).occupant.color == self.turn:
+                        self.mouse_pos[0], self.mouse_pos[1]).occupant.color == self.turn:
                         self.selected_piece = self.mouse_pos
 
                     elif self.selected_piece != None and self.mouse_pos in self.board.legal_moves(
@@ -179,7 +213,7 @@ class Game:
             for y in range(8):
                 if self.board.location(x, y).color == BLACK and self.board.location(x,
                                                                                     y).occupant != None and self.board.location(
-                        x, y).occupant.color == self.turn:
+                    x, y).occupant.color == self.turn:
                     if self.board.legal_moves(x, y) != []:
                         return False
 

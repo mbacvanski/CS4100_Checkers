@@ -23,7 +23,7 @@ SOUTHEAST = "southeast"
 AGENT_RED_SETUP = {
     'agent': 'Minimax',
     'color': checkers.RED,
-    'depth': 2,
+    'depth': 1,
     'eval_fn': piece2val_inv
 }
 
@@ -55,7 +55,7 @@ def main():
                 # TO start player's turn uncomment the below line and comment a couple  of line below than that
                 # game.player_turn()
                 print('=======================================')
-                agent.make_move(board=game.board)
+                agent.make_move()
                 # count_nodes = bot.step(game.board, True)
                 # print('Total nodes explored in this step are', count_nodes)
             if game.endit:

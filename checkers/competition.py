@@ -7,6 +7,7 @@ from typing import Callable, Dict, Tuple
 import checkers
 from game_state import piece2val_inv
 from minimax_agent import MinimaxAgent
+from minimax_agent_2 import MinimaxAgent as MinimaxAgent_2
 
 NUM_GAMES = 50
 MAX_MOVES = 100
@@ -24,7 +25,7 @@ AGENT_RED_SETUP = {
 }
 
 AGENT_BLUE_SETUP = {
-    'agent': 'Minimax',
+    'agent': 'Minimax_2',
     'color': checkers.BLUE,
     'depth': 1,
     'eval_fn': piece2val_inv
@@ -34,6 +35,8 @@ AGENT_BLUE_SETUP = {
 def build_agent(game: checkers.Game, agent: str, color: Tuple, depth: int, eval_fn: Callable):
     if agent == 'Minimax':
         return MinimaxAgent(color=color, game=game, depth=depth, eval_fn=eval_fn)
+    if agent == 'Minimax_2':
+        return MinimaxAgent_2(color=color, game=game, depth=depth, eval_fn=eval_fn)
 
 
 def run_game_once(x):
@@ -54,10 +57,7 @@ def run_game_once(x):
         else:
             agent_red.make_move(board=game.board)
         if game.endit:
-            if game.turn == checkers.RED:
-                return True
-            else:
-                return False
+            return game.whoWon()
 
         game.update()
 
@@ -72,14 +72,16 @@ def parallel_main():
     results = pool.map(run_game_once, range(NUM_GAMES))
     print(results)
 
-    red_wins = sum([1 for x in results if x is not None and x])
-    blue_wins = sum([1 for x in results if x is not None and not x])
+    red_wins = sum([1 for x in results if x == checkers.RED])
+    blue_wins = sum([1 for x in results if x == checkers.BLUE])
     draws = sum([1 for x in results if x is None])
 
     red_win_rate = red_wins / len(results)
     blue_win_rate = blue_wins / len(results)
 
-    print(f'Red wins {red_wins} / {len(results)} = {red_wins / len(results)}%')
+    print(f'Red wins {red_wins} / {len(results)} = {red_win_rate * 100}%')
+    print(f'Blue wins {blue_wins} / {len(results)} = {blue_win_rate * 100}%')
+    print(f'Draws = {draws}')
 
     file_contents = {
         'red': AGENT_RED_SETUP,
