@@ -35,6 +35,13 @@ def piece2val_inv(board: Board, color: PlayerColor):
                     badness -= 1
                 else:
                     badness += 1
+
+    # incentive to keep pieces in the back row to prevent opponent from becoming a king
+    for i in range(0, 8, 2):
+        occupant = board.location(i, 0).occupant
+        if occupant is not None and occupant.color == color:
+            badness -= occupant.value * 0.5
+
     return 24 - badness
 
 
