@@ -1,8 +1,8 @@
 import random
 from typing import Tuple, Union
 
-from checkers import Game
-from game_state import Action, GameState, PlayerColor, _next_player_color, piece2val
+from checkers import Board, Game, GameState
+from game_state import Action, Node, PlayerColor, _next_player_color, piece2val
 
 
 class MinimaxAgent:
@@ -18,42 +18,41 @@ class MinimaxAgent:
         self.eval_fn = eval_fn
 
     def make_move(self):
-        move = self._get_move(start_from=self.game.last_hop_to)
+        move: Action = self._get_move(start_from=self.game.state.last_hop_to)
         if move is not None:
-            self._action(current_pos=(move.from_x, move.from_y), final_pos=(move.to_x, move.to_y),
-                         board=self.game.board)
+            self._action(action=move, state=self.game.state)
         else:
             self.game.end_turn()
 
     def _get_move(self, start_from=None):
-        starting_state = GameState(
-            game=self.game,
+        starting_state = Node(
+            state=self.game.state,
             eval_fn=self.eval_fn,
             start_from=start_from,
         )
         return self.minimax(starting_state=starting_state, depth=self.depth_limit)[1]
 
-    def minimax(self, starting_state: GameState, depth=10, eval_fn=None) -> Tuple[float, Union[Action, None]]:
-        if starting_state.game.endit:
-            return (1 if starting_state.game.whoWon() == self.color else -1), None
+    def minimax(self, starting_state: Node, depth=10) -> Tuple[float, Union[Action, None]]:
+        if starting_state.state.game_over:
+            print('game over state eval')
+            return (24 if starting_state.state.whoWon() == self.color else -24), None
 
         if starting_state.depth > depth:
-            # return self.evaluation_function(starting_state), None
             return starting_state.value(), None
 
-        if starting_state.game.turn == self.color:
-            # print(f'running max on depth, {starting_state.depth}')
+        if starting_state.state.turn == self.color:
+            print('running max')
             return self.run_max(starting_state)
         else:
-            # print(f'running min on depth, {starting_state.depth}')
+            print('running min')
             return self.run_min(starting_state)
 
-    def run_max(self, state: GameState) -> Tuple[float, Union[Action, None]]:
+    def run_max(self, state: Node) -> Tuple[float, Union[Action, None]]:
         max_value = float('-inf')
         max_action = None
 
         for action in state.next_actions():
-            new_game_state = state.next_state(action)
+            new_game_state = state.next_node(action)
             value, _ = self.minimax(new_game_state, self.depth_limit)
             if value > max_value:
                 max_value = value
@@ -66,12 +65,12 @@ class MinimaxAgent:
             return 0, None
         return max_value, max_action
 
-    def run_min(self, state: GameState) -> Tuple[float, Union[Action, None]]:
+    def run_min(self, state: Node) -> Tuple[float, Union[Action, None]]:
         min_value = float('inf')
         min_action = None
 
         for action in state.next_actions():
-            new_game_state = state.next_state(action)
+            new_game_state = state.next_node(action)
             value, _ = self.minimax(new_game_state, self.depth_limit)
             if value < min_value:
                 min_value = value
@@ -83,24 +82,24 @@ class MinimaxAgent:
             return 0, None
         return min_value, min_action
 
-    def _action(self, current_pos, final_pos, board):
-        if current_pos is None:
-            self.game.end_turn()
+    def _action(self, action: Action, state: GameState):
+        current_pos, final_pos = (action.from_x, action.from_y), (action.to_x, action.to_y)
 
-        if board.location(final_pos[0], final_pos[1]).occupant is not None and board.location(final_pos[0], final_pos[
-            1]).occupant.color == self.game.turn:
-            current_pos = final_pos
+        if (state.board.location(final_pos[0], final_pos[1]).occupant is not None
+                and state.board.location(final_pos[0], final_pos[1]).occupant.color == state.turn):
+            state.end_turn()
+            return
 
-        elif current_pos is not None and final_pos in board.legal_moves(current_pos[0], current_pos[1]):
-            board.move_piece(
-                current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+        state.board.move_piece(current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+        if final_pos not in state.board.adjacent(current_pos[0], current_pos[1]):  # hop
+            state.board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) // 2,
+                                     current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
 
-            if final_pos not in board.adjacent(current_pos[0], current_pos[1]):
-                board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) //
-                                   2, current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
-
-                self.game.hop = True
-                self.game.last_hop_to = final_pos
-            else:  # not a hop
-                self.game.end_turn()
-                # self.game.turn = self.adversary_color
+            if state.board.legal_moves(final_pos[0], final_pos[1], mid_hop=True):
+                # More legal moves to make, we are mid-hop
+                state.mid_hop = True
+            else:
+                # No more legal moves now
+                state.end_turn()
+        else:
+            state.end_turn()

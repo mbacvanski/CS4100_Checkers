@@ -36,6 +36,20 @@ def piece2val_inv(board: Board, color: PlayerColor):
                 else:
                     badness += 1
 
+    return 24 - badness
+
+
+def piece2val_keep_back_row(board: Board, color: PlayerColor):
+    badness = 0
+    for i in range(8):
+        for j in range(8):
+            occupant = board.location(i, j).occupant
+            if occupant is not None:
+                if occupant.color == color:
+                    badness -= 1
+                else:
+                    badness += 1
+
     # incentive to keep pieces in the back row to prevent opponent from becoming a king
     for i in range(0, 8, 2):
         occupant = board.location(i, 0).occupant
@@ -59,34 +73,29 @@ def piece2val_favor_kings(board: Board, color: PlayerColor):
     return score
 
 
-class GameState:
-    game: Game = None
+class Node:
+    state: GameState = None
     depth: int = 0
     eval_fn = piece2val
     start_from: Tuple = None
 
-    def __init__(self, game: Game, depth: int = 0, eval_fn=piece2val, start_from: Tuple = None):
-        self.game = game
+    def __init__(self, state: GameState, depth: int = 0, eval_fn=piece2val, start_from: Tuple = None):
+        self.state = state
         self.depth = depth
         self.eval_fn = eval_fn
         self.start_from = start_from
 
     def is_terminal(self) -> bool:
-        return self.game.whoWon() is not None
+        return self.state.whoWon() is not None
 
     def next_actions(self) -> List[Action]:
-        """
-        Returns a list of [(from_x, from_to, to_x, to_y), ...]
-        """
-        actions: List[Action] = []
-        moves: List[MovesForPiece] = []
-
         if self.start_from is not None:
             i, j = self.start_from
-            moves = [MovesForPiece(i, j, self.game.board.legal_moves(i, j, self.game.hop))]
+            moves = [MovesForPiece(i, j, self.state.board.legal_moves(i, j, self.state.mid_hop))]
         else:
             moves = self._generate_moves()
 
+        actions: List[Action] = []
         for move_from_x, move_from_y, move_tos in moves:
             for move_to in move_tos:
                 actions.append(Action(move_from_x, move_from_y, move_to[0], move_to[1]))
@@ -94,91 +103,89 @@ class GameState:
         return actions
 
     # Successor function returns a new GameState object
-    def next_state(self, action: Action) -> GameState:
-        next_board = deepcopy(self.game.board)  # makes a copy of the board
+    def next_node(self, action: Action) -> Node:
+        next_state = deepcopy(self.state)
+        self._apply_action_to_state(state=next_state, action=action)
 
-        from_coord = (action[0], action[1])
-        to_coord = (action[2], action[3])
-        # self._run_action_on_board(next_board, from_coord, to_coord)  # modify the board clone
-
-        next_game = deepcopy(self.game)
-        next_game.board = next_board
-        self._action(current_pos=from_coord, final_pos=to_coord, game=next_game)
-
-        next_state = GameState(
-            game=next_game,
+        next_state = Node(
+            state=next_state,
             depth=self.depth + 1,
             eval_fn=self.eval_fn
         )
         return next_state
 
     def value(self) -> float:
-        return self.eval_fn(self.game.board, self.game.turn)
+        return self.eval_fn(self.state.board, self.state.turn)
 
     def _generate_moves(self) -> List[MovesForPiece]:
         for i in range(8):
             for j in range(8):
-                if (self.game.board.legal_moves(i, j, self.game.hop) != []
-                        and self.game.board.location(i, j).occupant is not None
-                        and self.game.board.location(i, j).occupant.color == self.game.turn):
-                    yield MovesForPiece(i, j, self.game.board.legal_moves(i, j, self.game.hop))
+                if (self.state.board.legal_moves(i, j, self.state.mid_hop) != []
+                        and self.state.board.location(i, j).occupant is not None
+                        and self.state.board.location(i, j).occupant.color == self.state.turn):
+                    yield MovesForPiece(i, j, self.state.board.legal_moves(i, j, self.state.mid_hop))
 
-    def _action(self, current_pos, final_pos, game: Game):
-        if current_pos is None:
-            self.game.end_turn()
+    def _apply_action_to_state(self, state: GameState, action: Action):
+        current_pos, final_pos = (action.from_x, action.from_y), (action.to_x, action.to_y)
 
-        if game.board.location(final_pos[0], final_pos[1]).occupant is not None \
-                and game.board.location(final_pos[0], final_pos[1]).occupant.color == self.game.turn:
-            current_pos = final_pos
+        if (state.board.location(final_pos[0], final_pos[1]).occupant is not None
+                and state.board.location(final_pos[0], final_pos[1]).occupant.color == self.state.turn):
+            state.end_turn()
+            return
 
-        elif current_pos is not None and final_pos in game.board.legal_moves(current_pos[0], current_pos[1]):
-            game.board.move_piece(
-                current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+        state.board.move_piece(current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+        if final_pos not in state.board.adjacent(current_pos[0], current_pos[1]):  # hop
+            state.board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) // 2,
+                                     current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
 
-            if final_pos not in game.board.adjacent(current_pos[0], current_pos[1]):
-                game.board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) //
-                                        2, current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
-
-                game.hop = True
-                game.last_hop_to = final_pos
-            else:  # not a hop
-                game.end_turn()
-
-    def _run_action_on_board(self, board, current_pos, final_pos, hop=False):
-        if hop == False:
-            if board.location(final_pos[0], final_pos[1]).occupant != None and board.location(final_pos[0], final_pos[
-                1]).occupant.color == self.game.turn:
-                current_pos = final_pos
-
-            elif current_pos != None and final_pos in board.legal_moves(current_pos[0], current_pos[1]):
-                board.move_piece(
-                    current_pos[0], current_pos[1], final_pos[0], final_pos[1])
-
-                if final_pos not in board.adjacent(current_pos[0], current_pos[1]):
-                    # print("REMOVE", current_pos, final_pos)
-                    board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) //
-                                       2, current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
-                    hop = True
-                    current_pos = final_pos
-                    final_pos = board.legal_moves(current_pos[0], current_pos[1], True)
-                    if final_pos != []:
-                        # print("HOP in Action", current_pos, final_pos)
-                        self._run_action_on_board(board, current_pos, final_pos[0], hop=True)
-        else:
-            # print(current_pos, final_pos)
-            if current_pos != None and final_pos in board.legal_moves(current_pos[0], current_pos[1], hop):
-                board.move_piece(current_pos[0], current_pos[1], final_pos[0], final_pos[1])
-                board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) // 2,
-                                   current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
-
-            if board.legal_moves(final_pos[0], final_pos[1], self.game.hop) == []:
-                return
+            if state.board.legal_moves(final_pos[0], final_pos[1], mid_hop=True):
+                # More legal moves to make, we are mid-hop
+                state.mid_hop = True
             else:
-                current_pos = final_pos
-                final_pos = board.legal_moves(current_pos[0], current_pos[1], True)
-                if final_pos != []:
-                    # print("HOP in Action", current_pos, final_pos)
-                    self._run_action_on_board(board, current_pos, final_pos[0], hop=True)
+                # No more legal moves now
+                state.end_turn()
+        else:
+            state.end_turn()
+
+        # if not state.mid_hop:
+        #     if (state.board.location(final_pos[0], final_pos[1]).occupant is not None
+        #             and state.board.location(final_pos[0], final_pos[1]).occupant.color == self.state.turn):
+        #         return
+        #
+        #     elif current_pos is not None and final_pos in state.board.legal_moves(current_pos[0], current_pos[1]):
+        #         state.board.move_piece(current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+        #
+        #         if final_pos not in state.board.adjacent(current_pos[0], current_pos[1]):  # hop
+        #             # print("REMOVE", current_pos, final_pos)
+        #             state.board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) // 2,
+        #                                      current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
+        #             state.mid_hop = True
+        #
+        #             # hop = True
+        #             # current_pos = final_pos
+        #             # final_pos = state.board.legal_moves(current_pos[0], current_pos[1], True)
+        #             # if final_pos:
+        #             #     # print("HOP in Action", current_pos, final_pos)
+        #             #     self.apply_action_to_state(state.board, current_pos, final_pos[0], hop=True)
+        # else:  # mid_hop is True
+        #     # print(current_pos, final_pos)
+        #     if current_pos is not None and final_pos in state.board.legal_moves(current_pos[0], current_pos[1], True):
+        #         state.board.move_piece(current_pos[0], current_pos[1], final_pos[0], final_pos[1])
+        #         state.board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) // 2,
+        #                                  current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
+        #
+        #     if not state.board.legal_moves(final_pos[0], final_pos[1], self.state.mid_hop):
+        #         # no more legal moves after this hop, end the turn
+        #         state.end_turn()
+        #     else:
+        #         # still mid_hop
+        #         state.mid_hop = True
+        #
+        #         # current_pos = final_pos
+        #         # final_pos = state.board.legal_moves(current_pos[0], current_pos[1], True)
+        #         # if final_pos:
+        #         #     # print("HOP in Action", current_pos, final_pos)
+        #         #     self.apply_action_to_state(state.board, current_pos, final_pos[0], hop=True)
 
 
 def _next_player_color(color: PlayerColor) -> PlayerColor:

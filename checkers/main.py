@@ -24,7 +24,7 @@ AGENT_RED_SETUP = {
     'agent': 'Minimax',
     'color': checkers.RED,
     'depth': 1,
-    'eval_fn': piece2val_inv
+    'eval_fn': piece2val
 }
 
 
@@ -45,7 +45,7 @@ def main():
         # random_bot_blue = gamebot.Bot(
         #     game, BLUE, mid_eval='piece_and_board_pov', method='alpha_beta', depth=3, end_eval='sum_of_dist')
         while True:  # main game loop
-            if game.turn == BLUE:
+            if game.state.turn == BLUE:
                 # TO start player's turn uncomment the below line and comment a couple  of line below than that
                 game.player_turn()
                 # agent.make_move(board=game.board)
@@ -58,7 +58,7 @@ def main():
                 agent.make_move()
                 # count_nodes = bot.step(game.board, True)
                 # print('Total nodes explored in this step are', count_nodes)
-            if game.endit:
+            if game.state.game_over:
                 break
             game.update()
 
