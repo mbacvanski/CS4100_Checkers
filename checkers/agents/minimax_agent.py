@@ -1,10 +1,10 @@
 import random
 from typing import Tuple, Union
 
-from agents.agent import Agent
-from checkers import Game, GameState
-from game_state import Action, Node, PlayerColor
+from agents.build_agent import Agent
+from checkers import Game
 from eval_fns import piece2val
+from game_state import Action, Node, PlayerColor
 
 
 class MinimaxAgent(Agent):
@@ -14,14 +14,7 @@ class MinimaxAgent(Agent):
         super().__init__(color, game, eval_fn)
         self.depth_limit = depth
 
-    def make_move(self):
-        move: Action = self._get_move(start_from=self.game.state.last_hop_to)
-        if move is not None:
-            self._action(action=move, state=self.game.state)
-        else:
-            self.game.end_turn()
-
-    def _get_move(self, start_from=None):
+    def _get_move(self, start_from: Tuple = None):
         starting_state = Node(
             state=self.game.state,
             eval_fn=self.eval_fn,
@@ -73,7 +66,7 @@ class MinimaxAgent(Agent):
             new_game_state = state.next_node(action)
             value, _ = self.minimax(new_game_state, self.depth_limit)
             # print(f'MIN: Considering ({action.from_x}, {action.from_y}) => ({action.to_x}, {action.to_y}) '
-                  # f'with value {value}')
+            # f'with value {value}')
             if value < min_value:
                 min_value = value
                 min_action = action
@@ -83,25 +76,3 @@ class MinimaxAgent(Agent):
         if min_action is None:  # if you can't take any actions, your value is 0
             return 0, None
         return min_value, min_action
-
-    def _action(self, action: Action, state: GameState):
-        current_pos, final_pos = (action.from_x, action.from_y), (action.to_x, action.to_y)
-
-        if (state.board.location(final_pos[0], final_pos[1]).occupant is not None
-                and state.board.location(final_pos[0], final_pos[1]).occupant.color == state.turn):
-            state.end_turn()
-            return
-
-        state.board.move_piece(current_pos[0], current_pos[1], final_pos[0], final_pos[1])
-        if final_pos not in state.board.adjacent(current_pos[0], current_pos[1]):  # hop
-            state.board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) // 2,
-                                     current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
-
-            if state.board.legal_moves(final_pos[0], final_pos[1], mid_hop=True):
-                # More legal moves to make, we are mid-hop
-                state.mid_hop = True
-            else:
-                # No more legal moves now
-                state.end_turn()
-        else:
-            state.end_turn()

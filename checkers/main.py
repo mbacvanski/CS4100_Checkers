@@ -1,9 +1,7 @@
-from typing import Callable, Tuple
-
 import checkers
-from agents.minimax_agent import MinimaxAgent
 ##COLORS##
 #             R    G    B
+from agents.build_agent import build_agent
 from eval_fns import piece2val
 
 WHITE = (255, 255, 255)
@@ -20,16 +18,9 @@ SOUTHWEST = "southwest"
 SOUTHEAST = "southeast"
 
 AGENT_RED_SETUP = {
-    'agent': 'Minimax',
+    'agent': 'random',
     'color': checkers.RED,
-    'depth': 2,
-    'eval_fn': piece2val
 }
-
-
-def build_agent(game: checkers.Game, agent: str, color: Tuple, depth: int, eval_fn: Callable):
-    if agent == 'Minimax':
-        return MinimaxAgent(color=color, game=game, depth=depth, eval_fn=eval_fn)
 
 
 def main():

@@ -2,10 +2,10 @@ import json
 import multiprocessing
 import multiprocessing as mp
 import os
-from typing import Callable, Dict, Tuple
+from typing import Dict
 
 import checkers
-from agents.minimax_agent import MinimaxAgent
+from agents.build_agent import build_agent
 from eval_fns import piece2val
 
 NUM_GAMES = 50
@@ -13,27 +13,20 @@ MAX_MOVES = 150
 
 
 def agent_str(agent: Dict) -> str:
-    return f'({agent.get("agent")}.{agent.get("depth")}.{agent.get("eval_fn").__name__})'
+    return f'({agent.get("agent")}.{agent.get("depth")}.{agent.get("eval_fn").__name__ if "eval_fn" in agent else ""})'
 
 
 AGENT_RED_SETUP = {
-    'agent': 'Minimax',
+    'agent': 'minimax',
     'color': checkers.RED,
-    'depth': 2,
-    'eval_fn': piece2val
-}
-
-AGENT_BLUE_SETUP = {
-    'agent': 'Minimax',
-    'color': checkers.BLUE,
     'depth': 3,
     'eval_fn': piece2val
 }
 
-
-def build_agent(game: checkers.Game, agent: str, color: Tuple, depth: int, eval_fn: Callable):
-    if agent == 'Minimax':
-        return MinimaxAgent(color=color, game=game, depth=depth, eval_fn=eval_fn)
+AGENT_BLUE_SETUP = {
+    'agent': 'random',
+    'color': checkers.BLUE,
+}
 
 
 def run_game_once(x):
