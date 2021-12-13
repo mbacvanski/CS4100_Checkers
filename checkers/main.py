@@ -1,11 +1,10 @@
 from typing import Callable, Tuple
 
 import checkers
-
+from agents.minimax_agent import MinimaxAgent
 ##COLORS##
 #             R    G    B
-from eval_fns import piece2val, piece2val_inv
-from minimax_agent import MinimaxAgent
+from eval_fns import piece2val
 
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -37,27 +36,16 @@ def main():
     while True:
         game = checkers.Game(loop_mode=False)
         game.setup()
-        # agent = MinimaxAgent(color=RED, game=game, depth=1)
         agent = build_agent(game=game, **AGENT_RED_SETUP)
 
-        # bot = gamebot.Bot(game, RED, mid_eval='piece_and_board',
-        #                   end_eval='sum_of_dist', method='alpha_beta', depth=3)
-        # random_bot_blue = gamebot.Bot(
-        #     game, BLUE, mid_eval='piece_and_board_pov', method='alpha_beta', depth=3, end_eval='sum_of_dist')
         while True:  # main game loop
             if game.state.turn == BLUE:
                 # TO start player's turn uncomment the below line and comment a couple  of line below than that
                 game.player_turn()
-                # agent.make_move(board=game.board)
-                # count_nodes = random_bot_blue.step(game.board, True)
-                # print('Total nodes explored in this step are', count_nodes)
             else:
-                # TO start player's turn uncomment the below line and comment a couple  of line below than that
-                # game.player_turn()
                 print('=======================================')
                 agent.make_move()
-                # count_nodes = bot.step(game.board, True)
-                # print('Total nodes explored in this step are', count_nodes)
+
             if game.state.game_over:
                 break
             game.update()

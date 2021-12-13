@@ -1,16 +1,13 @@
 from __future__ import annotations
 
 from collections import namedtuple
-from typing import List, Tuple
+from typing import List
 
 from checkers import *
 from eval_fns import piece2val
 
 MovesForPiece = namedtuple("MovesForPiece", "x y actions")
 Action = namedtuple("Action", "from_x from_y to_x to_y")
-
-
-# PlayerColor = Union[BLUE, RED]
 
 
 class Node:
@@ -86,50 +83,3 @@ class Node:
                 state.end_turn()
         else:
             state.end_turn()
-
-        # if not state.mid_hop:
-        #     if (state.board.location(final_pos[0], final_pos[1]).occupant is not None
-        #             and state.board.location(final_pos[0], final_pos[1]).occupant.color == self.state.turn):
-        #         return
-        #
-        #     elif current_pos is not None and final_pos in state.board.legal_moves(current_pos[0], current_pos[1]):
-        #         state.board.move_piece(current_pos[0], current_pos[1], final_pos[0], final_pos[1])
-        #
-        #         if final_pos not in state.board.adjacent(current_pos[0], current_pos[1]):  # hop
-        #             # print("REMOVE", current_pos, final_pos)
-        #             state.board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) // 2,
-        #                                      current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
-        #             state.mid_hop = True
-        #
-        #             # hop = True
-        #             # current_pos = final_pos
-        #             # final_pos = state.board.legal_moves(current_pos[0], current_pos[1], True)
-        #             # if final_pos:
-        #             #     # print("HOP in Action", current_pos, final_pos)
-        #             #     self.apply_action_to_state(state.board, current_pos, final_pos[0], hop=True)
-        # else:  # mid_hop is True
-        #     # print(current_pos, final_pos)
-        #     if current_pos is not None and final_pos in state.board.legal_moves(current_pos[0], current_pos[1], True):
-        #         state.board.move_piece(current_pos[0], current_pos[1], final_pos[0], final_pos[1])
-        #         state.board.remove_piece(current_pos[0] + (final_pos[0] - current_pos[0]) // 2,
-        #                                  current_pos[1] + (final_pos[1] - current_pos[1]) // 2)
-        #
-        #     if not state.board.legal_moves(final_pos[0], final_pos[1], self.state.mid_hop):
-        #         # no more legal moves after this hop, end the turn
-        #         state.end_turn()
-        #     else:
-        #         # still mid_hop
-        #         state.mid_hop = True
-        #
-        #         # current_pos = final_pos
-        #         # final_pos = state.board.legal_moves(current_pos[0], current_pos[1], True)
-        #         # if final_pos:
-        #         #     # print("HOP in Action", current_pos, final_pos)
-        #         #     self.apply_action_to_state(state.board, current_pos, final_pos[0], hop=True)
-
-
-def _next_player_color(color: PlayerColor) -> PlayerColor:
-    if color == BLUE:
-        return RED
-    elif color == RED:
-        return BLUE

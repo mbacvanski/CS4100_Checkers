@@ -5,12 +5,11 @@ import os
 from typing import Callable, Dict, Tuple
 
 import checkers
-from eval_fns import piece2val, piece2val_favor_kings, piece2val_keep_back_row
-from minimax_agent import MinimaxAgent
-from minimax_agent_2 import MinimaxAgent as MinimaxAgent_2
+from agents.minimax_agent import MinimaxAgent
+from eval_fns import piece2val
 
 NUM_GAMES = 50
-MAX_MOVES = 100
+MAX_MOVES = 150
 
 
 def agent_str(agent: Dict) -> str:
@@ -20,14 +19,14 @@ def agent_str(agent: Dict) -> str:
 AGENT_RED_SETUP = {
     'agent': 'Minimax',
     'color': checkers.RED,
-    'depth': 1,
+    'depth': 2,
     'eval_fn': piece2val
 }
 
 AGENT_BLUE_SETUP = {
     'agent': 'Minimax',
     'color': checkers.BLUE,
-    'depth': 2,
+    'depth': 3,
     'eval_fn': piece2val
 }
 
@@ -35,8 +34,6 @@ AGENT_BLUE_SETUP = {
 def build_agent(game: checkers.Game, agent: str, color: Tuple, depth: int, eval_fn: Callable):
     if agent == 'Minimax':
         return MinimaxAgent(color=color, game=game, depth=depth, eval_fn=eval_fn)
-    if agent == 'Minimax_2':
-        return MinimaxAgent_2(color=color, game=game, depth=depth, eval_fn=eval_fn)
 
 
 def run_game_once(x):

@@ -1,22 +1,18 @@
 import random
 from typing import Tuple, Union
 
+from agents.agent import Agent
 from checkers import Game, GameState
-from game_state import Action, Node, PlayerColor, _next_player_color
+from game_state import Action, Node, PlayerColor
 from eval_fns import piece2val
 
 
-class MinimaxAgent:
-    color: PlayerColor = None  # which color does this agent play for
-    game: Game = None
+class MinimaxAgent(Agent):
     depth_limit: int = 0
 
     def __init__(self, color: PlayerColor, game: Game, depth: int, eval_fn=piece2val):
-        self.color = color
-        self.game = game
+        super().__init__(color, game, eval_fn)
         self.depth_limit = depth
-        self.adversary_color = _next_player_color(self.color)
-        self.eval_fn = eval_fn
 
     def make_move(self):
         move: Action = self._get_move(start_from=self.game.state.last_hop_to)
