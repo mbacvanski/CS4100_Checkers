@@ -1,0 +1,27 @@
+{
+  "red": {
+    "agent": "minimax",
+    "color": [
+      255,
+      0,
+      0
+    ],
+    "depth": 2,
+    "eval_fn": "piece2val"
+  },
+  "blue": {
+    "agent": "random",
+    "color": [
+      0,
+      0,
+      255
+    ]
+  },
+  "num_games": 50,
+  "red_wins": 46,
+  "blue_wins": 0,
+  "draws": 4,
+  "draw_threshold": 150,
+  "red_win_rate": 0.92,
+  "blue_win_rate": 0.0
+}
