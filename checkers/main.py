@@ -4,7 +4,7 @@ import checkers
 
 ##COLORS##
 #             R    G    B
-from game_state import piece2val, piece2val_inv
+from eval_fns import piece2val, piece2val_inv
 from minimax_agent import MinimaxAgent
 
 WHITE = (255, 255, 255)
@@ -23,7 +23,7 @@ SOUTHEAST = "southeast"
 AGENT_RED_SETUP = {
     'agent': 'Minimax',
     'color': checkers.RED,
-    'depth': 1,
+    'depth': 2,
     'eval_fn': piece2val
 }
 

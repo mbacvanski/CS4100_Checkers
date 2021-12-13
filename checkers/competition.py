@@ -5,7 +5,7 @@ import os
 from typing import Callable, Dict, Tuple
 
 import checkers
-from game_state import piece2val_inv
+from eval_fns import piece2val, piece2val_favor_kings, piece2val_keep_back_row
 from minimax_agent import MinimaxAgent
 from minimax_agent_2 import MinimaxAgent as MinimaxAgent_2
 
@@ -21,14 +21,14 @@ AGENT_RED_SETUP = {
     'agent': 'Minimax',
     'color': checkers.RED,
     'depth': 1,
-    'eval_fn': piece2val_inv
+    'eval_fn': piece2val
 }
 
 AGENT_BLUE_SETUP = {
-    'agent': 'Minimax_2',
+    'agent': 'Minimax',
     'color': checkers.BLUE,
-    'depth': 1,
-    'eval_fn': piece2val_inv
+    'depth': 2,
+    'eval_fn': piece2val
 }
 
 
@@ -51,13 +51,13 @@ def run_game_once(x):
     agent_red = build_agent(**{'game': game, **AGENT_RED_SETUP})
     print(f'⏳ Starting run {x}...')
 
-    while True and game.move_count < MAX_MOVES:  # main game loop
-        if game.turn == checkers.BLUE:
-            agent_blue.make_move(board=game.board)
+    while True and game.state.move_count < MAX_MOVES:  # main game loop
+        if game.state.turn == checkers.BLUE:
+            agent_blue.make_move()
         else:
-            agent_red.make_move(board=game.board)
-        if game.endit:
-            return game.whoWon()
+            agent_red.make_move()
+        if game.state.game_over:
+            return game.state.whoWon()
 
         game.update()
 

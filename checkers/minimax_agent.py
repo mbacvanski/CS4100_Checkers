@@ -1,8 +1,9 @@
 import random
 from typing import Tuple, Union
 
-from checkers import Board, Game, GameState
-from game_state import Action, Node, PlayerColor, _next_player_color, piece2val
+from checkers import Game, GameState
+from game_state import Action, Node, PlayerColor, _next_player_color
+from eval_fns import piece2val
 
 
 class MinimaxAgent:
@@ -34,17 +35,18 @@ class MinimaxAgent:
 
     def minimax(self, starting_state: Node, depth=10) -> Tuple[float, Union[Action, None]]:
         if starting_state.state.game_over:
-            print('game over state eval')
+            # print('game over state eval')
             return (24 if starting_state.state.whoWon() == self.color else -24), None
 
-        if starting_state.depth > depth:
-            return starting_state.value(), None
+        if starting_state.depth >= depth:
+            # return starting_state.value(), None
+            return self.eval_fn(starting_state.state.board, self.color), None
 
         if starting_state.state.turn == self.color:
-            print('running max')
+            # print('running max')
             return self.run_max(starting_state)
         else:
-            print('running min')
+            # print('running min')
             return self.run_min(starting_state)
 
     def run_max(self, state: Node) -> Tuple[float, Union[Action, None]]:
@@ -54,6 +56,8 @@ class MinimaxAgent:
         for action in state.next_actions():
             new_game_state = state.next_node(action)
             value, _ = self.minimax(new_game_state, self.depth_limit)
+            # print(f'MAX: Considering ({action.from_x}, {action.from_y}) => ({action.to_x}, {action.to_y}) '
+            #       f'with value {value}')
             if value > max_value:
                 max_value = value
                 max_action = action
@@ -72,6 +76,8 @@ class MinimaxAgent:
         for action in state.next_actions():
             new_game_state = state.next_node(action)
             value, _ = self.minimax(new_game_state, self.depth_limit)
+            # print(f'MIN: Considering ({action.from_x}, {action.from_y}) => ({action.to_x}, {action.to_y}) '
+                  # f'with value {value}')
             if value < min_value:
                 min_value = value
                 min_action = action

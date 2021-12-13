@@ -31,6 +31,7 @@ Functionalities include:
 
 import sys
 from copy import deepcopy
+from typing import Tuple
 
 import pygame
 from pygame.locals import *
@@ -45,6 +46,7 @@ RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 GOLD = (255, 215, 0)
 HIGH = (160, 190, 255)
+PlayerColor = Tuple
 
 ##DIRECTIONS##
 NORTHWEST = "northwest"
@@ -406,7 +408,6 @@ class Game:
             else:  # not a hop
                 self.end_turn()
                 # self.game.turn = self.adversary_color
-
 
     def player_turn(self):
         """
