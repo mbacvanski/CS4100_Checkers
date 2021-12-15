@@ -19,20 +19,6 @@ def piece2val(board: Board, color: PlayerColor):
     return score
 
 
-def piece2val_inv(board: Board, color: PlayerColor):
-    badness = 0
-    for i in range(8):
-        for j in range(8):
-            occupant = board.location(i, j).occupant
-            if occupant is not None:
-                if occupant.color == color:
-                    badness -= 1
-                else:
-                    badness += 1
-
-    return 24 - badness
-
-
 def piece2val_keep_back_row(board: Board, color: PlayerColor):
     score = 0
     for i in range(8):

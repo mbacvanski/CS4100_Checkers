@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Tuple
 
 import checkers
 from agents.build_agent import build_agent
-from eval_fns import piece2val
+from eval_fns import piece2val, piece2val_favor_kings
 
 NUM_GAMES = 50
 MAX_MOVES = 150
@@ -18,17 +18,17 @@ def agent_str(agent: Dict) -> str:
 
 
 AGENT_RED_SETUP = {
-    'agent': 'minimax',
+    'agent': 'minimax_ab',
     'color': checkers.RED,
     'depth': 4,
     'eval_fn': piece2val
 }
 
 AGENT_BLUE_SETUP = {
-    'agent': 'random',
+    'agent': 'minimax_ab',
     'color': checkers.BLUE,
-    # 'depth': 3,
-    # 'eval_fn': piece2val
+    'depth': 4,
+    'eval_fn': piece2val_favor_kings
 }
 
 
