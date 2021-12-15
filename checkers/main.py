@@ -18,9 +18,9 @@ SOUTHWEST = "southwest"
 SOUTHEAST = "southeast"
 
 AGENT_RED_SETUP = {
-    'agent': 'minimax_ab',
+    'agent': 'minimax_ab_jumps_first',
     'color': checkers.RED,
-    'depth': 2,
+    'depth': 4,
     'eval_fn': piece2val
 }
 

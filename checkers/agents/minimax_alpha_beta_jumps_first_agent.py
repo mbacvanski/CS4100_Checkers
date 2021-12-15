@@ -7,7 +7,7 @@ from eval_fns import piece2val
 from game_state import Action, Node, PlayerColor
 
 
-class MinimaxAlphaBetaAgent(Agent):
+class MinimaxAlphaBetaJumpsFirstAgent(Agent):
     depth_limit: int = 0
 
     def __init__(self, color: PlayerColor, game: Game, depth: int, eval_fn=piece2val):
@@ -44,8 +44,7 @@ class MinimaxAlphaBetaAgent(Agent):
         max_value = float('-inf')
         max_action = None
 
-        next_actions = state.next_actions()
-        random.shuffle(next_actions)
+        next_actions = sorted(state.next_actions(), key=lambda a: _action_dist(a), reverse=True)
         nodes_explored = 0
         for action in next_actions:
             new_game_state = state.next_node(action)
@@ -67,8 +66,7 @@ class MinimaxAlphaBetaAgent(Agent):
         min_value = float('inf')
         min_action = None
 
-        next_actions = state.next_actions()
-        random.shuffle(next_actions)
+        next_actions = sorted(state.next_actions(), key=lambda a: _action_dist(a), reverse=True)
         nodes_explored = 0
         for action in next_actions:
             new_game_state = state.next_node(action)
@@ -85,3 +83,7 @@ class MinimaxAlphaBetaAgent(Agent):
         if min_action is None:  # if you can't take any actions, your value is 0
             return 0, None, nodes_explored
         return min_value, min_action, nodes_explored
+
+
+def _action_dist(a: Action) -> float:
+    return ((a.from_x - a.to_x) ** 2 + (a.from_y - a.to_y) ** 2) ** 0.5

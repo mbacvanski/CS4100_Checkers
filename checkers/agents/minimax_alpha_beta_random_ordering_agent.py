@@ -7,7 +7,7 @@ from eval_fns import piece2val
 from game_state import Action, Node, PlayerColor
 
 
-class MinimaxAlphaBetaAgent(Agent):
+class MinimaxAlphaBetaRandomAgent(Agent):
     depth_limit: int = 0
 
     def __init__(self, color: PlayerColor, game: Game, depth: int, eval_fn=piece2val):
