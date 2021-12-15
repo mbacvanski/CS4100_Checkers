@@ -44,8 +44,10 @@ class MinimaxAlphaBetaAgent(Agent):
         max_value = float('-inf')
         max_action = None
 
+        next_actions = state.next_actions()
+        random.shuffle(next_actions)
         nodes_explored = 0
-        for action in state.next_actions():
+        for action in next_actions:
             new_game_state = state.next_node(action)
             nodes_explored += 1
             value, _, explored = self.minimax(new_game_state, self.depth_limit, alpha=alpha, beta=beta)
@@ -65,8 +67,10 @@ class MinimaxAlphaBetaAgent(Agent):
         min_value = float('inf')
         min_action = None
 
+        next_actions = state.next_actions()
+        random.shuffle(next_actions)
         nodes_explored = 0
-        for action in state.next_actions():
+        for action in next_actions:
             new_game_state = state.next_node(action)
             nodes_explored += 1
             value, _, explored = self.minimax(new_game_state, self.depth_limit, alpha=alpha, beta=beta)
