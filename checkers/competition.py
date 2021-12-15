@@ -20,15 +20,15 @@ def agent_str(agent: Dict) -> str:
 AGENT_RED_SETUP = {
     'agent': 'minimax',
     'color': checkers.RED,
-    'depth': 3,
+    'depth': 4,
     'eval_fn': piece2val
 }
 
 AGENT_BLUE_SETUP = {
-    'agent': 'minimax_ab',
+    'agent': 'random',
     'color': checkers.BLUE,
-    'depth': 3,
-    'eval_fn': piece2val
+    # 'depth': 3,
+    # 'eval_fn': piece2val
 }
 
 
