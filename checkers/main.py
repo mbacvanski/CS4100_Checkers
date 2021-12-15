@@ -20,7 +20,7 @@ SOUTHEAST = "southeast"
 AGENT_RED_SETUP = {
     'agent': 'minimax_ab',
     'color': checkers.RED,
-    'depth': 4,
+    'depth': 2,
     'eval_fn': piece2val
 }
 
@@ -37,7 +37,8 @@ def main():
                 game.player_turn()
             else:
                 print('=======================================')
-                agent.make_move()
+                nodes_explored = agent.make_move()
+                print(f'Explored {nodes_explored} nodes')
 
             if game.state.game_over:
                 break
