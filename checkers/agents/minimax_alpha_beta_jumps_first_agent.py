@@ -27,7 +27,7 @@ class MinimaxAlphaBetaJumpsFirstAgent(Agent):
                 alpha=float('-inf'), beta=float('inf')) -> Tuple[float, Union[Action, None], int]:
         if starting_state.state.game_over:
             # print('game over state eval')
-            return (24 if starting_state.state.whoWon() == self.color else -24), None, 0
+            return (float('inf') if starting_state.state.whoWon() == self.color else -float('inf')), None, 0
 
         if starting_state.depth >= depth:
             # return starting_state.value(), None

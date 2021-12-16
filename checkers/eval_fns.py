@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-from checkers import Board, PlayerColor, RED
-
-
-# from game_state import PlayerColor
+from checkers import Board, PlayerColor, RED, _next_player_color
 
 
 def piece2val(board: Board, color: PlayerColor):
@@ -57,3 +54,19 @@ def piece2val_favor_kings(board: Board, color: PlayerColor):
                 else:
                     score -= value
     return score
+
+
+def piece2val_move_to_opponent(board: Board, color: PlayerColor) -> int:
+    self_pieces = board.get_locations_by_color(color)  # (x,y) tuples
+    self_x = sum([x for x, y in self_pieces]) / len(self_pieces)
+    self_y = sum([y for x, y in self_pieces]) / len(self_pieces)
+
+    opponent_pieces = board.get_locations_by_color(_next_player_color(color))
+    opponent_x = sum([x for x, y in opponent_pieces]) / len(opponent_pieces)
+    opponent_y = sum([y for x, y in opponent_pieces]) / len(opponent_pieces)
+
+    # minimum score is when centers of mass are at opposite corners, which is maximum distance
+    distance = ((self_x - opponent_x) ** 2 + (self_y - opponent_y) ** 2) ** 0.5
+    score = ((2 * (7 ** 2)) ** .5) - distance
+
+    return piece2val(board=board, color=color) + score

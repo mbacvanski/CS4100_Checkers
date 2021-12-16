@@ -2,7 +2,7 @@ import checkers
 ##COLORS##
 #             R    G    B
 from agents.build_agent import build_agent
-from eval_fns import piece2val
+from eval_fns import piece2val_move_to_opponent
 
 WHITE = (255, 255, 255)
 BLUE = (0, 0, 255)
@@ -20,8 +20,8 @@ SOUTHEAST = "southeast"
 AGENT_RED_SETUP = {
     'agent': 'minimax_ab_jumps_first',
     'color': checkers.RED,
-    'depth': 4,
-    'eval_fn': piece2val
+    'depth': 5,
+    'eval_fn': piece2val_move_to_opponent
 }
 
 

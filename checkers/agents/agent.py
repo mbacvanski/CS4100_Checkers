@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Tuple
 
-from checkers import BLUE, Game, GameState, PlayerColor, RED
+from checkers import Game, GameState, PlayerColor, _next_player_color
 from game_state import Action
 
 
@@ -49,10 +49,3 @@ def _action(action: Action, state: GameState):
             state.end_turn()
     else:
         state.end_turn()
-
-
-def _next_player_color(color: PlayerColor) -> PlayerColor:
-    if color == BLUE:
-        return RED
-    elif color == RED:
-        return BLUE

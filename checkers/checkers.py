@@ -31,7 +31,7 @@ Functionalities include:
 
 import sys
 from copy import deepcopy
-from typing import Tuple
+from typing import List, Tuple
 
 import pygame
 from pygame.locals import *
@@ -92,6 +92,15 @@ class Board:
                     matrix[x][y].occupant = Piece(BLUE)
 
         return matrix
+
+    def get_locations_by_color(self, color: PlayerColor) -> List[Tuple[int, int]]:
+        locations = []
+        for x in range(8):
+            for y in range(8):
+                if self.matrix[x][y] and self.matrix[x][y].occupant and self.matrix[x][y].occupant.color == color:
+                    locations.append((x, y))
+
+        return locations
 
     def board_string(self, board):
         """
@@ -619,3 +628,10 @@ class Square:
     def __init__(self, color, occupant=None):
         self.color = color  # color is either BLACK or WHITE
         self.occupant = occupant  # occupant is a Piece object
+
+
+def _next_player_color(color: PlayerColor) -> PlayerColor:
+    if color == BLUE:
+        return RED
+    elif color == RED:
+        return BLUE
