@@ -2,17 +2,18 @@ import random
 from typing import Tuple, Union
 
 from agents.build_agent import Agent
-from checkers import Game
+from checkers import Game, Action
 from eval_fns import piece2val
-from game_state import Action, Node, PlayerColor
+from game_state import Node, PlayerColor
 
 
 class MinimaxAlphaBetaJumpsFirstAgent(Agent):
     depth_limit: int = 0
 
-    def __init__(self, color: PlayerColor, game: Game, depth: int, eval_fn=piece2val):
+    def __init__(self, color: PlayerColor, game: Game, depth: int, eval_fn=piece2val, tiebreaker_fn=None):
         super().__init__(color, game, eval_fn)
         self.depth_limit = depth
+        self.tiebreaker_fun = tiebreaker_fn
 
     def _get_move(self, start_from: Tuple = None) -> Tuple[Action, int]:
         starting_state = Node(
@@ -27,7 +28,7 @@ class MinimaxAlphaBetaJumpsFirstAgent(Agent):
                 alpha=float('-inf'), beta=float('inf')) -> Tuple[float, Union[Action, None], int]:
         if starting_state.state.game_over:
             # print('game over state eval')
-            return (float('inf') if starting_state.state.whoWon() == self.color else -float('inf')), None, 0
+            return (99999999 if starting_state.state.whoWon() == self.color else -99999999), None, 0
 
         if starting_state.depth >= depth:
             # return starting_state.value(), None
@@ -51,7 +52,9 @@ class MinimaxAlphaBetaJumpsFirstAgent(Agent):
             nodes_explored += 1
             value, _, explored = self.minimax(new_game_state, self.depth_limit, alpha=alpha, beta=beta)
             nodes_explored += explored
-            if (value > max_value) or (value == max_value and bool(random.randint(0, 1))):
+            if value > max_value or (value == max_value and (
+                    (self.tiebreaker_fun is not None and self.tiebreaker_fun(max_action, action, state, self.color))
+                    or (bool(random.randint(0, 1))))):
                 max_value = value
                 max_action = action
                 if max_value > beta:
@@ -73,7 +76,9 @@ class MinimaxAlphaBetaJumpsFirstAgent(Agent):
             nodes_explored += 1
             value, _, explored = self.minimax(new_game_state, self.depth_limit, alpha=alpha, beta=beta)
             nodes_explored += explored
-            if (value < min_value) or (value == min_value and bool(random.randint(0, 1))):
+            if value < min_value or (value == min_value and (
+                    (self.tiebreaker_fun is not None and self.tiebreaker_fun(min_action, action, state, self.color))
+                    or (bool(random.randint(0, 1))))):
                 min_value = value
                 min_action = action
                 if min_value < alpha:

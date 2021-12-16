@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from checkers import BLUE, Board, GameState, Piece, RED
-from game_state import Action, Node
+from checkers import BLUE, Board, GameState, Piece, RED, Action
+from game_state import Node
 
 
 class TestNode(TestCase):

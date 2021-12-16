@@ -58,10 +58,13 @@ def piece2val_favor_kings(board: Board, color: PlayerColor):
 
 def piece2val_move_to_opponent(board: Board, color: PlayerColor) -> int:
     self_pieces = board.get_locations_by_color(color)  # (x,y) tuples
+    opponent_pieces = board.get_locations_by_color(_next_player_color(color))
+    if len(self_pieces) == 0 or len(opponent_pieces) == 0:
+        return piece2val(board, color)
+
     self_x = sum([x for x, y in self_pieces]) / len(self_pieces)
     self_y = sum([y for x, y in self_pieces]) / len(self_pieces)
 
-    opponent_pieces = board.get_locations_by_color(_next_player_color(color))
     opponent_x = sum([x for x, y in opponent_pieces]) / len(opponent_pieces)
     opponent_y = sum([y for x, y in opponent_pieces]) / len(opponent_pieces)
 

@@ -2,9 +2,9 @@ import random
 from typing import Tuple, Union
 
 from agents.build_agent import Agent
-from checkers import Game
+from checkers import Game, Action
 from eval_fns import piece2val
-from game_state import Action, Node, PlayerColor
+from game_state import Node, PlayerColor
 
 
 class MinimaxAlphaBetaAgent(Agent):

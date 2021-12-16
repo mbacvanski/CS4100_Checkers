@@ -2,7 +2,8 @@ import random
 from typing import Tuple
 
 from agents.agent import Agent
-from game_state import Action, Node
+from game_state import Node
+from checkers import Action
 
 
 class RandomAgent(Agent):

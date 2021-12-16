@@ -8,20 +8,23 @@ from typing import Any, Dict, List, Tuple
 import checkers
 from agents.build_agent import build_agent
 from eval_fns import piece2val, piece2val_move_to_opponent
+from game_state import _break_ties_distance
 
-NUM_GAMES = 20
+NUM_GAMES = 50
 MAX_MOVES = 150
 
 
 def agent_str(agent: Dict) -> str:
-    return f'({agent.get("agent")}.{agent.get("depth")}.{agent.get("eval_fn").__name__ if "eval_fn" in agent else ""})'
+    return f'({agent.get("agent")}.{agent.get("depth")}.{agent.get("eval_fn").__name__ if "eval_fn" in agent else ""}' \
+           f'.{agent.get("tiebreaker_fn").__name__ if "tiebreaker_fn" in agent else ""})'
 
 
 AGENT_RED_SETUP = {
     'agent': 'minimax_ab',
     'color': checkers.RED,
     'depth': 3,
-    'eval_fn': piece2val_move_to_opponent
+    'eval_fn': piece2val,
+    'tiebreaker_fn': _break_ties_distance
 }
 
 AGENT_BLUE_SETUP = {

@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Tuple
 
-from checkers import Game, GameState, PlayerColor, _next_player_color
-from game_state import Action
+from checkers import Game, GameState, PlayerColor, _next_player_color, Action
 
 
 class Agent(ABC):

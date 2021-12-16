@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from collections import namedtuple
-from typing import List
+import random
 
 from checkers import *
-from eval_fns import piece2val
+from checkers import Action, PlayerColor
+from eval_fns import piece2val, piece2val_move_to_opponent
 
 MovesForPiece = namedtuple("MovesForPiece", "x y actions")
-Action = namedtuple("Action", "from_x from_y to_x to_y")
 
 
 class Node:
@@ -83,3 +82,18 @@ class Node:
                 state.end_turn()
         else:
             state.end_turn()
+
+
+def _break_ties_distance(curr_best_action: Action, new_action: Action, node: Node, color: PlayerColor):
+    curr_best_board = node.next_node(curr_best_action).state.board
+    new_board = node.next_node(new_action).state.board
+
+    max_value = piece2val_move_to_opponent(curr_best_board, color)
+    current_value = piece2val_move_to_opponent(new_board, color)
+
+    # if the two actions are of equal value, choose one randomly
+    if current_value == max_value:
+        return bool(random.randint(0, 1))
+
+    # otherwise, return the action that leads to the centers of mass being closer
+    return current_value > max_value

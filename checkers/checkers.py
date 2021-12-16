@@ -30,6 +30,7 @@ Functionalities include:
 """
 
 import sys
+from collections import namedtuple
 from copy import deepcopy
 from typing import List, Tuple
 
@@ -635,3 +636,6 @@ def _next_player_color(color: PlayerColor) -> PlayerColor:
         return RED
     elif color == RED:
         return BLUE
+
+
+Action = namedtuple("Action", "from_x from_y to_x to_y")
