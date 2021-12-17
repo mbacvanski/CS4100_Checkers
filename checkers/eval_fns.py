@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from checkers import Board, PlayerColor, RED, _next_player_color
+from checkers import BLUE, Board, PlayerColor, RED, _next_player_color
 
 
 def piece2val(board: Board, color: PlayerColor):
@@ -72,4 +72,32 @@ def piece2val_move_to_opponent(board: Board, color: PlayerColor) -> int:
     distance = ((self_x - opponent_x) ** 2 + (self_y - opponent_y) ** 2) ** 0.5
     score = ((2 * (7 ** 2)) ** .5) - distance
 
-    return piece2val(board=board, color=color) + score
+    # return piece2val(board=board, color=color) + score
+    return score
+
+
+def furthest_king(board: Board, color: PlayerColor) -> int:
+    max_dist = 0
+    for king_x, king_y in board.get_king_locations(color):
+        for piece_x, piece_y in board.get_locations_by_color(_next_player_color(color)):
+            dist = _distance(king_x, king_y, piece_x, piece_y)
+            if dist > max_dist:
+                max_dist = dist
+
+    score = ((2 * (7 ** 2)) ** .5) - max_dist
+    return score
+
+
+def _dists_to_all_pieces(board: Board) -> float:
+    dist = 0
+    for red_x, red_y in board.get_king_locations(RED):
+        for blue_x, blue_y in board.get_locations_by_color(BLUE):
+            dist += _distance(red_x, red_y, blue_x, blue_y)
+
+    # score = 1425.52727087 - dist
+    # return score
+    return dist
+
+
+def _distance(ax, ay, bx, by) -> float:
+    return ((ax - bx) ** 2 + (ay - by) ** 2) ** 0.5

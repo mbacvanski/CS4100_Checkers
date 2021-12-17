@@ -103,6 +103,16 @@ class Board:
 
         return locations
 
+    def get_king_locations(self, color: PlayerColor) -> List[Tuple[int, int]]:
+        locations = []
+        for x in range(8):
+            for y in range(8):
+                if (self.matrix[x][y] and self.matrix[x][y].occupant
+                        and self.matrix[x][y].occupant.color == color and self.matrix[x][y].occupant.king):
+                    locations.append((x, y))
+
+        return locations
+
     def board_string(self, board):
         """
         Takes a board and returns a matrix of the board space colors. Used for testing new_board()

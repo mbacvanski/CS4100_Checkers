@@ -2,7 +2,7 @@ import random
 from typing import Tuple, Union
 
 from agents.build_agent import Agent
-from checkers import Game, Action
+from checkers import Action, Game
 from eval_fns import piece2val
 from game_state import Node, PlayerColor
 
@@ -13,7 +13,7 @@ class MinimaxAlphaBetaJumpsFirstAgent(Agent):
     def __init__(self, color: PlayerColor, game: Game, depth: int, eval_fn=piece2val, tiebreaker_fn=None):
         super().__init__(color, game, eval_fn)
         self.depth_limit = depth
-        self.tiebreaker_fun = tiebreaker_fn
+        self.tiebreaker_fn = tiebreaker_fn
 
     def _get_move(self, start_from: Tuple = None) -> Tuple[Action, int]:
         starting_state = Node(
@@ -53,7 +53,7 @@ class MinimaxAlphaBetaJumpsFirstAgent(Agent):
             value, _, explored = self.minimax(new_game_state, self.depth_limit, alpha=alpha, beta=beta)
             nodes_explored += explored
             if value > max_value or (value == max_value and (
-                    (self.tiebreaker_fun is not None and self.tiebreaker_fun(max_action, action, state, self.color))
+                    (self.tiebreaker_fn is not None and self.tiebreaker_fn(max_action, action, state, self.color))
                     or (bool(random.randint(0, 1))))):
                 max_value = value
                 max_action = action
@@ -77,7 +77,7 @@ class MinimaxAlphaBetaJumpsFirstAgent(Agent):
             value, _, explored = self.minimax(new_game_state, self.depth_limit, alpha=alpha, beta=beta)
             nodes_explored += explored
             if value < min_value or (value == min_value and (
-                    (self.tiebreaker_fun is not None and self.tiebreaker_fun(min_action, action, state, self.color))
+                    (self.tiebreaker_fn is not None and self.tiebreaker_fn(min_action, action, state, self.color))
                     or (bool(random.randint(0, 1))))):
                 min_value = value
                 min_action = action

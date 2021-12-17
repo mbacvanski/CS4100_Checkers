@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Tuple
 
 import checkers
 from agents.build_agent import build_agent
-from eval_fns import piece2val, piece2val_move_to_opponent
-from game_state import _break_ties_distance
+from eval_fns import piece2val
+from game_state import _break_ties_by_all_dists, _break_ties_by_king_dist, _break_ties_distance
 
 NUM_GAMES = 50
 MAX_MOVES = 150
@@ -20,18 +20,18 @@ def agent_str(agent: Dict) -> str:
 
 
 AGENT_RED_SETUP = {
-    'agent': 'minimax_ab',
+    'agent': 'minimax_ab_jumps_first',
     'color': checkers.RED,
-    'depth': 3,
+    'depth': 2,
     'eval_fn': piece2val,
-    'tiebreaker_fn': _break_ties_distance
+    'tiebreaker_fn': _break_ties_by_all_dists
 }
 
 AGENT_BLUE_SETUP = {
-    'agent': 'minimax_ab',
+    'agent': 'minimax_ab_jumps_first',
     'color': checkers.BLUE,
-    'depth': 3,
-    'eval_fn': piece2val
+    'depth': 2,
+    'eval_fn': piece2val,
 }
 
 

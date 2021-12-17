@@ -4,7 +4,7 @@ import random
 
 from checkers import *
 from checkers import Action, PlayerColor
-from eval_fns import piece2val, piece2val_move_to_opponent
+from eval_fns import _dists_to_all_pieces, furthest_king, piece2val, piece2val_move_to_opponent
 
 MovesForPiece = namedtuple("MovesForPiece", "x y actions")
 
@@ -97,3 +97,35 @@ def _break_ties_distance(curr_best_action: Action, new_action: Action, node: Nod
 
     # otherwise, return the action that leads to the centers of mass being closer
     return current_value > max_value
+
+
+def _break_ties_by_king_dist(curr_best_action: Action, new_action: Action, node: Node, color: PlayerColor):
+    curr_best_board = node.next_node(curr_best_action).state.board
+    new_board = node.next_node(new_action).state.board
+
+    max_value = furthest_king(curr_best_board, color)
+    current_value = furthest_king(new_board, color)
+
+    # if the two actions are of equal value, choose one randomly
+    if current_value == max_value:
+        return bool(random.randint(0, 1))
+
+    # otherwise, return the action that leads to the centers of mass being closer
+    print(f'breaking tie by king dist: max_value={max_value} vs {current_value}')
+    return current_value < max_value
+
+
+def _break_ties_by_all_dists(curr_best_action: Action, new_action: Action, node: Node, color: PlayerColor):
+    curr_best_board = node.next_node(curr_best_action).state.board
+    new_board = node.next_node(new_action).state.board
+
+    max_value = _dists_to_all_pieces(curr_best_board)
+    current_value = _dists_to_all_pieces(new_board)
+
+    # if the two actions are of equal value, choose one randomly
+    if current_value == max_value:
+        return bool(random.randint(0, 1))
+
+    # otherwise, return the action that leads to the centers of mass being closer
+    # print(f'breaking tie by all dists: max_value={max_value} vs {current_value}')
+    return current_value < max_value
